@@ -1,4 +1,3 @@
-# ComSci-2-Repository
 # 2D Distance Calculator
 
 ## Description
@@ -13,6 +12,7 @@ By leveraging Python's built-in `math` library (`math.sqrt` and `math.pow`), the
 2. Open a terminal or command prompt in the project directory.
 3. Run the script with:
    ```bash
+   python distance_calculator.py
    python distance_calculator.py
 ## Author Information
 - **Name:** MARKELLUS JHAMES CHU
