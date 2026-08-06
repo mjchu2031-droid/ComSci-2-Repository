@@ -13,7 +13,6 @@ By leveraging Python's built-in `math` library (`math.sqrt` and `math.pow`), the
 3. Run the script with:
    ```bash
    python distance_calculator.py
-   python distance_calculator.py
 ## Author Information
 - **Name:** MARKELLUS JHAMES CHU
 - **Course:** Computer Science 2
