@@ -1,32 +1,30 @@
-# StudyTrack — Initial Team Task Schedule
+# StudyTrack – Group Task Schedule
 
-**Project:** StudyTrack — Student Task and Deadline Tracker  
-**Course:** Computer Science 2  
-**Prepared by:** Markellus Jhames D. Chu  
-**Section:** Grade 8 – Anthurium
+**Class:** Grade 8 – Anthurium  
+**Subject:** Computer Science 2  
+**Project:** StudyTrack
 
-> Add the official names of the assigned group members and confirm responsibilities with the group. Do not submit the placeholder names as real team members.
+We will use this schedule to divide the work and keep track of what our group needs to finish. We should update it when our group agrees on the assignments.
 
-## Schedule
+## Our Schedule
 
-| Phase | Activity | Expected output |
+| Step | What we need to do | Status |
 |---|---|---|
-| 1 | Confirm project idea and project requirements | Approved project concept |
-| 2 | Review problem statement and requirements | Finalized problem and objectives |
-| 3 | Plan data fields and JSON structure | Data model and sample JSON |
-| 4 | Build the task management menu | Working command-line menu |
-| 5 | Implement Create, Read, Update, and Delete | Working CRUD operations |
-| 6 | Add validation and data summaries | Reliable inputs and analysis |
-| 7 | Run tests and fix errors | Test results and improved program |
-| 8 | Update documentation and prepare demonstration | Final project documentation |
+| 1 | Choose and discuss our project idea | Done |
+| 2 | Write the problem and objectives | Drafted |
+| 3 | Plan the information that will be saved in JSON | Drafted |
+| 4 | Make the first program menu | In progress |
+| 5 | Add the task features | In progress |
+| 6 | Test the program and fix errors | To do |
+| 7 | Improve the program and prepare the presentation | To do |
 
-## Team Responsibilities
+## Group Members and Tasks
 
-| Team member | Responsibility | Status |
-|---|---|---|
-| Markellus Jhames D. Chu | Initial project setup, application structure, and documentation | Initial assignment |
-| [Add teammate name] | Review features and help test CRUD operations | To be confirmed |
-| [Add teammate name] | Review JSON data and input validation | To be confirmed |
-| [Add teammate name] | Review summaries, wireframe, and presentation | To be confirmed |
+| Group member | Assigned work |
+|---|---|
+| Markellus Jhames D. Chu | Add the member's agreed task here |
+| [Write teammate's name] | [Write the task agreed by the group] |
+| [Write teammate's name] | [Write the task agreed by the group] |
+| [Write teammate's name, if needed] | [Write the task agreed by the group] |
 
-Adjust the table for the actual number of group members. All members should contribute to testing and reviewing the project.
+Please replace the example rows with your actual group members and the tasks you have agreed to do. Everyone should help test and review the project.
