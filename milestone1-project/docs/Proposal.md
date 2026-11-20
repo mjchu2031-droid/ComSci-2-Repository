@@ -7,7 +7,7 @@
 **Prepared by:** Markellus Jhames D. Chu  
 **Section:** Grade 8 – Anthurium  
 **Course:** Computer Science 2  
-**Status:** For teacher review and approval
+**Status:** Project idea approved by the teacher (as reported); proposal draft for group review
 
 ---
 
@@ -147,5 +147,5 @@ The expected outcome is a beginner-friendly Python application that stores schoo
 
 ---
 
-**Teacher approval:** Pending  
+**Teacher approval:** The StudyTrack project idea has been approved, as reported by the student. The written proposal and final features should still be reviewed with the group and teacher.  
 **Note:** This proposal is an initial draft and may be revised based on teacher and group feedback.
