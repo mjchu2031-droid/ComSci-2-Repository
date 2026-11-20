@@ -2,9 +2,8 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from datetime import date
 
-from main import save_tasks, find_task, show_summary, check_task
+from main import check_task, find_task, load_tasks, save_tasks
 
 
 def example_task():
@@ -22,23 +21,28 @@ def example_task():
 
 class StudyTrackTests(unittest.TestCase):
 
-    def test_save_tasks(self):
+    def test_save_and_load_tasks(self):
         with tempfile.TemporaryDirectory() as folder:
             file_path = Path(folder) / "tasks.json"
-            old_file = None
+            tasks = [example_task()]
 
-            # Test the JSON format by writing a list with json directly.
-            with open(file_path, "w", encoding="utf-8") as file:
-                json.dump([example_task()], file)
+            save_tasks(tasks, file_path)
+            result = load_tasks(file_path)
 
-            with open(file_path, "r", encoding="utf-8") as file:
-                result = json.load(file)
+            self.assertEqual(result, tasks)
 
-            self.assertEqual(result[0]["title"], "Science worksheet")
+    def test_load_empty_file_that_does_not_exist_yet(self):
+        with tempfile.TemporaryDirectory() as folder:
+            file_path = Path(folder) / "tasks.json"
+
+            result = load_tasks(file_path)
+
+            self.assertEqual(result, [])
 
     def test_find_task(self):
         tasks = [example_task()]
         result = find_task(tasks, 1)
+
         self.assertEqual(result["subject"], "Science")
 
     def test_task_id_not_found(self):
@@ -60,6 +64,14 @@ class StudyTrackTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             check_task(task)
+
+    def test_invalid_json_file(self):
+        with tempfile.TemporaryDirectory() as folder:
+            file_path = Path(folder) / "tasks.json"
+            file_path.write_text("{wrong json", encoding="utf-8")
+
+            with self.assertRaises(ValueError):
+                load_tasks(file_path)
 
 
 if __name__ == "__main__":
