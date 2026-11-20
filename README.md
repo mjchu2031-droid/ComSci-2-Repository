@@ -1,7 +1,7 @@
 # StudyTrack
 
 **Computer Science 2 Project**  
-**Made by:** Markellus Jhames D. Chu and group  
+**Made by:** Markellus Jhames D. Chu, Sebastian Meil C. Valdez, Sofia Kyle Nicole M. Palad
 **Section:** Grade 8 – Anthurium
 
 ## What is StudyTrack?
