@@ -1,92 +1,90 @@
-# StudyTrack — Application Wireframe
+# StudyTrack – Simple Wireframe
+
+This is our first idea of how the program will look. The final version may change as we work on it.
 
 ## 1. Main Menu
 
 ```text
-+------------------------------------------------+
-|                   STUDYTRACK                   |
-|        Student Task and Deadline Tracker       |
-+------------------------------------------------+
-|  1. Add a task                                  |
-|  2. View all tasks                              |
-|  3. Search tasks                                |
-|  4. Update a task                               |
-|  5. Delete a task                               |
-|  6. View task summary                           |
-|  7. Exit                                        |
-+------------------------------------------------+
-|  Choose an option (1-7): _                      |
-+------------------------------------------------+
+------------------------------------
+             STUDYTRACK
+      Student Task and Deadline Tracker
+------------------------------------
+1. Add a task
+2. View all tasks
+3. Search tasks
+4. Update a task
+5. Delete a task
+6. View task summary
+7. Exit
+------------------------------------
+Enter your choice: __
 ```
 
-## 2. Add Task Screen
+## 2. Add a Task
 
 ```text
-+---------------------- ADD TASK -----------------+
-| Task title:         _________________________   |
-| Subject:            _________________________   |
-| Date assigned:      YYYY-MM-DD                  |
-| Due date:           YYYY-MM-DD                  |
-| Priority:           Low / Medium / High         |
-| Status:             Pending / In Progress /     |
-|                     Completed                   |
-| Estimated minutes:  _________________________   |
-+------------------------------------------------+
-| Message: Task saved successfully.               |
-+------------------------------------------------+
+----------- ADD A TASK -------------
+Task name:       __________________
+Subject:         __________________
+Date assigned:  YYYY-MM-DD
+Due date:        YYYY-MM-DD
+Priority:        Low / Medium / High
+Status:          Pending / In Progress / Completed
+Estimated time:  ______ minutes
+------------------------------------
+Task saved!
 ```
 
-## 3. Task List Screen
+## 3. View Tasks
 
 ```text
-+---------------------- TASKS --------------------+
-| ID  TITLE                 SUBJECT     DUE DATE  |
-| 1   Science worksheet    Science     2026-11-24|
-| 2   Math exercises       Mathematics 2026-11-25|
-+------------------------------------------------+
+------------------- MY TASKS -------------------
+ID   Task name             Subject       Due date
+1    Science worksheet    Science       2026-11-24
+2    Math exercises       Mathematics   2026-11-25
+------------------------------------------------
 ```
 
-## 4. Summary Screen
+## 4. Task Summary
 
 ```text
-+-------------------- TASK SUMMARY ---------------+
-| Total tasks:                 6                  |
-| Pending:                     2                  |
-| In Progress:                 2                  |
-| Completed:                   2                  |
-| Completion rate:            33.3%               |
-| Upcoming tasks:              3                  |
-| Overdue tasks:               1                  |
-| Average estimated time:     40.0 minutes        |
-|                                                |
-| Tasks by subject:                               |
-| Science: 2     Mathematics: 2     English: 2    |
-+------------------------------------------------+
+--------------- TASK SUMMARY ----------------
+Total tasks:             6
+Pending:                 2
+In Progress:             2
+Completed:               2
+Completion:              33.3%
+Due in the next 7 days:  3
+Overdue:                 1
+-----------------------------------------------
 ```
 
-*All numbers in the summary screen are examples. Actual output depends on the saved data.*
+The numbers above are only examples. The actual numbers will depend on the tasks saved by the user.
 
 ## 5. Program Flow
 
-```mermaid
-flowchart TD
-    A([Start]) --> B[Load tasks from JSON]
-    B --> C[Display main menu]
-    C --> D{Menu choice}
-    D -->|1 Add| E[Collect and validate task details]
-    D -->|2 View| F[Display saved tasks]
-    D -->|3 Search| G[Find matching tasks]
-    D -->|4 Update| H[Edit task by ID]
-    D -->|5 Delete| I[Confirm and delete task]
-    D -->|6 Summary| J[Calculate task statistics]
-    D -->|7 Exit| K([End])
-    E --> L[Save JSON data]
-    H --> L
-    I --> L
-    L --> C
-    F --> C
-    G --> C
-    J --> C
-    D -->|Invalid choice| M[Show error message]
-    M --> C
+```text
+          START
+            |
+     Read tasks.json
+            |
+       Show menu
+            |
+      User chooses
+            |
+   +--------+---------+--------+
+   |        |         |        |
+  Add      View     Search   Summary
+   |        |         |        |
+   +--------+---------+--------+
+            |
+    Update or Delete?
+            |
+    Save changes to JSON
+            |
+       Show menu again
+            |
+        Choose Exit
+            |
+           END
 ```
