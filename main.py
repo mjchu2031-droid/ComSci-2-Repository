@@ -1,427 +1,316 @@
 """
-StudyTrack: Student Task and Deadline Tracker
-
-Computer Science 2 project
-Prepared by: Markellus Jhames D. Chu
-
-A command-line program that stores school tasks in a JSON file.
-It supports Create, Read, Update, and Delete (CRUD) operations
-and displays simple summaries of the saved tasks.
+StudyTrack - Student Task and Deadline Tracker
+Computer Science 2
 """
 
 import json
 from datetime import date, timedelta
 from pathlib import Path
 
+# This is where the tasks will be saved.
+DATA_FILE = Path(__file__).parent / "data" / "tasks.json"
 
-# Keep the data file beside this program, inside the data folder.
-BASE_DIR = Path(__file__).resolve().parent
-DATA_FILE = BASE_DIR / "data" / "tasks.json"
-
-VALID_PRIORITIES = ("Low", "Medium", "High")
-VALID_STATUSES = ("Pending", "In Progress", "Completed")
+PRIORITIES = ["Low", "Medium", "High"]
+STATUSES = ["Pending", "In Progress", "Completed"]
 
 
-def parse_date(value, field_name):
-    """Convert YYYY-MM-DD text into a date, or raise a helpful error."""
+def load_tasks():
+    """Read the tasks from the JSON file."""
+    DATA_FILE.parent.mkdir(exist_ok=True)
+
+    if not DATA_FILE.exists():
+        save_tasks([])
+        return []
+
     try:
-        return date.fromisoformat(value)
-    except (TypeError, ValueError):
-        raise ValueError(f"{field_name} must use YYYY-MM-DD format.")
+        with open(DATA_FILE, "r", encoding="utf-8") as file:
+            tasks = json.load(file)
+    except json.JSONDecodeError:
+        raise ValueError("The tasks.json file is not valid JSON.")
+
+    if not isinstance(tasks, list):
+        raise ValueError("The tasks.json file should contain a list.")
+
+    return tasks
 
 
-def validate_task(task):
-    """Check that a task record has valid values."""
-    for field in ("title", "subject"):
-        if not isinstance(task.get(field), str) or not task[field].strip():
-            raise ValueError(f"{field.replace('_', ' ').title()} cannot be empty.")
+def save_tasks(tasks):
+    """Save the task list to the JSON file."""
+    DATA_FILE.parent.mkdir(exist_ok=True)
+    with open(DATA_FILE, "w", encoding="utf-8") as file:
+        json.dump(tasks, file, indent=4)
 
-    assigned = parse_date(task.get("date_assigned"), "Date assigned")
-    due = parse_date(task.get("due_date"), "Due date")
+
+def check_task(task):
+    """Check if the task information is valid."""
+    if not task["title"].strip():
+        raise ValueError("Task name cannot be empty.")
+
+    if not task["subject"].strip():
+        raise ValueError("Subject cannot be empty.")
+
+    try:
+        assigned = date.fromisoformat(task["date_assigned"])
+        due = date.fromisoformat(task["due_date"])
+    except ValueError:
+        raise ValueError("Dates must use YYYY-MM-DD format.")
 
     if due < assigned:
-        raise ValueError("Due date cannot be earlier than the date assigned.")
+        raise ValueError("The due date cannot be earlier than the assigned date.")
 
-    if task.get("priority") not in VALID_PRIORITIES:
-        raise ValueError("Priority must be Low, Medium, or High.")
+    if task["priority"] not in PRIORITIES:
+        raise ValueError("Choose Low, Medium, or High for priority.")
 
-    if task.get("status") not in VALID_STATUSES:
-        raise ValueError("Status must be Pending, In Progress, or Completed.")
+    if task["status"] not in STATUSES:
+        raise ValueError("Choose a valid task status.")
 
-    minutes = task.get("estimated_minutes")
-    if isinstance(minutes, bool) or not isinstance(minutes, int) or minutes <= 0:
+    if not isinstance(task["estimated_minutes"], int) or task["estimated_minutes"] <= 0:
         raise ValueError("Estimated minutes must be a positive whole number.")
 
-    task_id = task.get("task_id")
-    if isinstance(task_id, bool) or not isinstance(task_id, int) or task_id <= 0:
-        raise ValueError("Task ID must be a positive whole number.")
 
+def get_task_details():
+    """Ask the user for the details of a new task."""
+    title = input("Task name: ").strip()
+    subject = input("Subject: ").strip()
+    date_assigned = input("Date assigned (YYYY-MM-DD): ").strip()
+    due_date = input("Due date (YYYY-MM-DD): ").strip()
 
-class TaskManager:
-    """Loads, saves, and manages task records in a JSON file."""
+    print("Priority choices:", ", ".join(PRIORITIES))
+    priority = input("Priority: ").strip().title()
 
-    def __init__(self, data_file=DATA_FILE):
-        self.data_file = Path(data_file)
-        self.data_file.parent.mkdir(parents=True, exist_ok=True)
-        self.tasks = self.load_tasks()
+    print("Status choices:", ", ".join(STATUSES))
+    status = input("Status: ").strip().title()
 
-        # Create an empty JSON file the first time the program is used.
-        if not self.data_file.exists():
-            self.save_tasks()
+    try:
+        estimated_minutes = int(input("Estimated minutes: "))
+    except ValueError:
+        raise ValueError("Estimated minutes must be a whole number.")
 
-    def load_tasks(self):
-        """Read task records from JSON without overwriting damaged data."""
-        if not self.data_file.exists():
-            return []
-
-        try:
-            with self.data_file.open("r", encoding="utf-8") as file:
-                records = json.load(file)
-        except json.JSONDecodeError as error:
-            raise ValueError(
-                f"The data file contains invalid JSON: {self.data_file}. "
-                "Please repair or restore the file before continuing."
-            ) from error
-
-        if not isinstance(records, list):
-            raise ValueError("The JSON data must contain a list of task records.")
-
-        for record in records:
-            if not isinstance(record, dict):
-                raise ValueError("Every task record in the JSON file must be an object.")
-            validate_task(record)
-
-        return records
-
-    def save_tasks(self):
-        """Write all current tasks to the JSON file."""
-        self.data_file.parent.mkdir(parents=True, exist_ok=True)
-        with self.data_file.open("w", encoding="utf-8") as file:
-            json.dump(self.tasks, file, indent=4, ensure_ascii=False)
-            file.write("\n")
-
-    def add_task(self, details):
-        """Create a task, assign its ID, and save it."""
-        next_id = max((task["task_id"] for task in self.tasks), default=0) + 1
-        new_task = {"task_id": next_id, **details}
-        validate_task(new_task)
-        self.tasks.append(new_task)
-        self.save_tasks()
-        return new_task
-
-    def get_task(self, task_id):
-        """Return a task with the selected ID, or None if it does not exist."""
-        return next(
-            (task for task in self.tasks if task["task_id"] == task_id),
-            None
-        )
-
-    def update_task(self, task_id, changes):
-        """Update selected fields in an existing task and save the result."""
-        task = self.get_task(task_id)
-        if task is None:
-            return False
-
-        updated_task = {**task, **changes}
-        validate_task(updated_task)
-        task.update(changes)
-        self.save_tasks()
-        return True
-
-    def delete_task(self, task_id):
-        """Delete a task by ID and save the result."""
-        task = self.get_task(task_id)
-        if task is None:
-            return False
-
-        self.tasks.remove(task)
-        self.save_tasks()
-        return True
-
-
-def calculate_summary(tasks, today=None):
-    """Calculate counts and descriptive summaries for the task list."""
-    today = today or date.today()
-    total = len(tasks)
-
-    status_counts = {
-        status: sum(1 for task in tasks if task["status"] == status)
-        for status in VALID_STATUSES
+    task = {
+        "title": title,
+        "subject": subject,
+        "date_assigned": date_assigned,
+        "due_date": due_date,
+        "priority": priority,
+        "status": status,
+        "estimated_minutes": estimated_minutes
     }
 
-    subject_counts = {}
-    for task in tasks:
-        subject = task["subject"]
-        subject_counts[subject] = subject_counts.get(subject, 0) + 1
-
-    upcoming_limit = today + timedelta(days=7)
-    upcoming = 0
-    overdue = 0
-
-    for task in tasks:
-        if task["status"] == "Completed":
-            continue
-
-        due = parse_date(task["due_date"], "Due date")
-        if today <= due <= upcoming_limit:
-            upcoming += 1
-        elif due < today:
-            overdue += 1
-
-    average_minutes = (
-        sum(task["estimated_minutes"] for task in tasks) / total
-        if total else 0
-    )
-
-    completion_rate = (
-        status_counts["Completed"] / total * 100
-        if total else 0
-    )
-
-    return {
-        "total": total,
-        "status_counts": status_counts,
-        "subject_counts": subject_counts,
-        "upcoming": upcoming,
-        "overdue": overdue,
-        "average_minutes": average_minutes,
-        "completion_rate": completion_rate,
-    }
+    check_task(task)
+    return task
 
 
-def prompt_nonempty(label):
-    """Ask until the user enters text."""
-    while True:
-        value = input(label).strip()
-        if value:
-            return value
-        print("This field cannot be empty. Please try again.")
+def add_task(tasks):
+    """Add a new task to the list."""
+    task = get_task_details()
+
+    if len(tasks) == 0:
+        new_id = 1
+    else:
+        new_id = max(item["task_id"] for item in tasks) + 1
+
+    task["task_id"] = new_id
+    tasks.append(task)
+    save_tasks(tasks)
+    print("Task added!")
 
 
-def prompt_date(label):
-    """Ask for a valid date in YYYY-MM-DD format."""
-    while True:
-        value = input(label).strip()
-        try:
-            date.fromisoformat(value)
-            return value
-        except ValueError:
-            print("Enter a valid date in YYYY-MM-DD format (example: 2026-11-25).")
-
-
-def prompt_choice(label, allowed_values):
-    """Ask until the user chooses one of the listed options."""
-    options = ", ".join(allowed_values)
-    while True:
-        value = input(f"{label} ({options}): ").strip().title()
-        if value in allowed_values:
-            return value
-        print(f"Please choose one of these values: {options}.")
-
-
-def prompt_positive_integer(label):
-    """Ask for a positive whole number."""
-    while True:
-        value = input(label).strip()
-        try:
-            number = int(value)
-            if number > 0:
-                return number
-        except ValueError:
-            pass
-        print("Please enter a positive whole number.")
-
-
-def prompt_task_details():
-    """Collect and validate all information needed for a new task."""
-    while True:
-        title = prompt_nonempty("Task title: ")
-        subject = prompt_nonempty("Subject: ")
-        date_assigned = prompt_date("Date assigned (YYYY-MM-DD): ")
-        due_date = prompt_date("Due date (YYYY-MM-DD): ")
-
-        try:
-            if date.fromisoformat(due_date) < date.fromisoformat(date_assigned):
-                raise ValueError("Due date cannot be earlier than date assigned.")
-        except ValueError as error:
-            print(error)
-            print("Please enter the dates again.\n")
-            continue
-
-        priority = prompt_choice("Priority", VALID_PRIORITIES)
-        status = prompt_choice("Status", VALID_STATUSES)
-        estimated_minutes = prompt_positive_integer("Estimated minutes: ")
-
-        return {
-            "title": title,
-            "subject": subject,
-            "date_assigned": date_assigned,
-            "due_date": due_date,
-            "priority": priority,
-            "status": status,
-            "estimated_minutes": estimated_minutes,
-        }
-
-
-def display_tasks(tasks):
-    """Print tasks in a readable table-like format."""
-    if not tasks:
-        print("\nNo tasks have been saved yet. Choose 'Add a task' to begin.")
+def view_tasks(tasks):
+    """Show all saved tasks."""
+    if len(tasks) == 0:
+        print("There are no saved tasks yet.")
         return
 
-    print("\n" + "-" * 100)
-    print(f"{'ID':<5} {'TITLE':<27} {'SUBJECT':<17} {'DUE DATE':<13} {'PRIORITY':<10} {'STATUS'}")
-    print("-" * 100)
+    print("\nID | Task | Subject | Due date | Priority | Status")
+    print("-" * 75)
 
     for task in tasks:
         print(
-            f"{task['task_id']:<5} "
-            f"{task['title'][:26]:<27} "
-            f"{task['subject'][:16]:<17} "
-            f"{task['due_date']:<13} "
-            f"{task['priority']:<10} "
-            f"{task['status']}"
+            str(task["task_id"]) + " | " +
+            task["title"] + " | " +
+            task["subject"] + " | " +
+            task["due_date"] + " | " +
+            task["priority"] + " | " +
+            task["status"]
         )
 
-    print("-" * 100)
+
+def search_tasks(tasks):
+    """Find tasks using a word in the title, subject, or status."""
+    word = input("Enter a word to search: ").lower()
+    found = []
+
+    for task in tasks:
+        if (word in task["title"].lower()
+                or word in task["subject"].lower()
+                or word in task["status"].lower()):
+            found.append(task)
+
+    if len(found) == 0:
+        print("No matching tasks found.")
+    else:
+        view_tasks(found)
 
 
-def add_task_action(manager):
-    print("\n=== Add a Task ===")
-    details = prompt_task_details()
-    task = manager.add_task(details)
-    print(f"Task #{task['task_id']} was saved successfully.")
+def find_task(tasks, task_id):
+    """Find and return a task using its ID."""
+    for task in tasks:
+        if task["task_id"] == task_id:
+            return task
+    return None
 
 
-def search_tasks_action(manager):
-    print("\n=== Search Tasks ===")
-    keyword = input("Enter a title, subject, or status keyword: ").strip().lower()
+def update_task(tasks):
+    """Change the details of a saved task."""
+    view_tasks(tasks)
 
-    matches = [
-        task for task in manager.tasks
-        if keyword in task["title"].lower()
-        or keyword in task["subject"].lower()
-        or keyword in task["status"].lower()
-    ]
-    display_tasks(matches)
-
-
-def read_task_id():
-    while True:
-        value = input("Enter task ID: ").strip()
-        try:
-            task_id = int(value)
-            if task_id > 0:
-                return task_id
-        except ValueError:
-            pass
-        print("Please enter a valid positive task ID.")
-
-
-def update_task_action(manager):
-    print("\n=== Update a Task ===")
-    display_tasks(manager.tasks)
-    if not manager.tasks:
+    if len(tasks) == 0:
         return
-
-    task_id = read_task_id()
-    task = manager.get_task(task_id)
-    if task is None:
-        print("No task was found with that ID.")
-        return
-
-    print("Press Enter to keep the current value.")
-    changes = {}
-
-    for field, label in (
-        ("title", "Title"),
-        ("subject", "Subject"),
-        ("date_assigned", "Date assigned"),
-        ("due_date", "Due date"),
-    ):
-        current = task[field]
-        new_value = input(f"{label} [{current}]: ").strip()
-        if new_value:
-            changes[field] = new_value
-
-    for field, label, allowed in (
-        ("priority", "Priority", VALID_PRIORITIES),
-        ("status", "Status", VALID_STATUSES),
-    ):
-        current = task[field]
-        new_value = input(f"{label} [{current}] ({', '.join(allowed)}): ").strip()
-        if new_value:
-            normalized = new_value.title()
-            if normalized not in allowed:
-                print(f"{label} must be one of: {', '.join(allowed)}.")
-                return
-            changes[field] = normalized
-
-    current_minutes = task["estimated_minutes"]
-    new_minutes = input(f"Estimated minutes [{current_minutes}]: ").strip()
-    if new_minutes:
-        try:
-            changes["estimated_minutes"] = int(new_minutes)
-        except ValueError:
-            print("Estimated minutes must be a positive whole number.")
-            return
 
     try:
-        if manager.update_task(task_id, changes):
-            print("Task updated successfully.")
-    except ValueError as error:
-        print(f"Task was not updated: {error}")
-
-
-def delete_task_action(manager):
-    print("\n=== Delete a Task ===")
-    display_tasks(manager.tasks)
-    if not manager.tasks:
+        task_id = int(input("Enter the ID of the task to update: "))
+    except ValueError:
+        print("Please enter a valid number.")
         return
 
-    task_id = read_task_id()
-    task = manager.get_task(task_id)
+    task = find_task(tasks, task_id)
+
     if task is None:
-        print("No task was found with that ID.")
+        print("Task not found.")
         return
 
-    confirmation = input(
-        f"Delete '{task['title']}'? Type Y to confirm: "
-    ).strip().lower()
+    print("Press Enter if you want to keep the current information.")
 
-    if confirmation == "y":
-        manager.delete_task(task_id)
-        print("Task deleted successfully.")
+    fields = ["title", "subject", "date_assigned", "due_date",
+              "priority", "status", "estimated_minutes"]
+
+    changes = {}
+
+    for field in fields:
+        new_value = input(field.replace("_", " ").title()
+                          + " [" + str(task[field]) + "]: ").strip()
+
+        if new_value != "":
+            if field == "estimated_minutes":
+                try:
+                    changes[field] = int(new_value)
+                except ValueError:
+                    print("Estimated minutes must be a whole number.")
+                    return
+            elif field in ["priority", "status"]:
+                changes[field] = new_value.title()
+            else:
+                changes[field] = new_value
+
+    updated_task = task.copy()
+    updated_task.update(changes)
+
+    try:
+        check_task(updated_task)
+    except ValueError as error:
+        print("Could not update task:", error)
+        return
+
+    task.update(changes)
+    save_tasks(tasks)
+    print("Task updated!")
+
+
+def delete_task(tasks):
+    """Remove a task after asking the user to confirm."""
+    view_tasks(tasks)
+
+    if len(tasks) == 0:
+        return
+
+    try:
+        task_id = int(input("Enter the ID of the task to delete: "))
+    except ValueError:
+        print("Please enter a valid number.")
+        return
+
+    task = find_task(tasks, task_id)
+
+    if task is None:
+        print("Task not found.")
+        return
+
+    answer = input("Are you sure you want to delete this task? (y/n): ").lower()
+
+    if answer == "y":
+        tasks.remove(task)
+        save_tasks(tasks)
+        print("Task deleted.")
     else:
-        print("Deletion cancelled. The task was not changed.")
+        print("Delete cancelled.")
 
 
-def show_summary_action(manager):
-    print("\n=== Task Summary ===")
-    summary = calculate_summary(manager.tasks)
+def show_summary(tasks):
+    """Count tasks and show some information about them."""
+    total = len(tasks)
+    completed = 0
+    pending = 0
+    in_progress = 0
+    upcoming = 0
+    overdue = 0
+    subject_count = {}
 
-    print(f"Total tasks: {summary['total']}")
-    for status in VALID_STATUSES:
-        print(f"{status}: {summary['status_counts'][status]}")
+    today = date.today()
+    next_week = today + timedelta(days=7)
 
-    print(f"Completion rate: {summary['completion_rate']:.1f}%")
-    print(f"Upcoming tasks (next 7 days): {summary['upcoming']}")
-    print(f"Overdue tasks: {summary['overdue']}")
-    print(f"Average estimated time: {summary['average_minutes']:.1f} minutes")
+    for task in tasks:
+        if task["status"] == "Completed":
+            completed += 1
+        elif task["status"] == "Pending":
+            pending += 1
+        elif task["status"] == "In Progress":
+            in_progress += 1
+
+        subject = task["subject"]
+        if subject in subject_count:
+            subject_count[subject] += 1
+        else:
+            subject_count[subject] = 1
+
+        due = date.fromisoformat(task["due_date"])
+
+        if task["status"] != "Completed":
+            if today <= due <= next_week:
+                upcoming += 1
+            elif due < today:
+                overdue += 1
+
+    if total == 0:
+        completion = 0
+        average_time = 0
+    else:
+        completion = completed / total * 100
+        total_time = sum(task["estimated_minutes"] for task in tasks)
+        average_time = total_time / total
+
+    print("\n----- TASK SUMMARY -----")
+    print("Total tasks:", total)
+    print("Pending:", pending)
+    print("In Progress:", in_progress)
+    print("Completed:", completed)
+    print("Completion:", round(completion, 1), "%")
+    print("Due in the next 7 days:", upcoming)
+    print("Overdue:", overdue)
+    print("Average estimated time:", round(average_time, 1), "minutes")
 
     print("\nTasks by subject:")
-    if summary["subject_counts"]:
-        for subject, count in sorted(summary["subject_counts"].items()):
-            print(f"- {subject}: {count}")
+    if len(subject_count) == 0:
+        print("No tasks saved.")
     else:
-        print("- No task data available yet.")
+        for subject in subject_count:
+            print(subject + ":", subject_count[subject])
 
 
-def print_menu():
-    print("\n" + "=" * 48)
-    print("                 STUDYTRACK")
-    print("       Student Task and Deadline Tracker")
-    print("=" * 48)
+def show_menu():
+    """Display the choices."""
+    print("\n==============================")
+    print("          STUDYTRACK")
+    print("==============================")
     print("1. Add a task")
     print("2. View all tasks")
     print("3. Search tasks")
@@ -429,45 +318,42 @@ def print_menu():
     print("5. Delete a task")
     print("6. View task summary")
     print("7. Exit")
-    print("-" * 48)
+    print("==============================")
 
 
-def run_app(manager=None):
-    """Run the main menu until the user chooses Exit."""
+def main():
+    """Start the program and keep showing the menu."""
     try:
-        manager = manager or TaskManager()
+        tasks = load_tasks()
     except (ValueError, OSError) as error:
-        print(f"Could not load task data: {error}")
-        print("Please check the JSON file before running the program again.")
+        print("Could not load tasks:", error)
         return
 
-    actions = {
-        "1": lambda: add_task_action(manager),
-        "2": lambda: display_tasks(manager.tasks),
-        "3": lambda: search_tasks_action(manager),
-        "4": lambda: update_task_action(manager),
-        "5": lambda: delete_task_action(manager),
-        "6": lambda: show_summary_action(manager),
-    }
-
     while True:
-        print_menu()
-        choice = input("Choose an option (1-7): ").strip()
-
-        if choice == "7":
-            print("Your tasks are saved. Goodbye!")
-            break
-
-        action = actions.get(choice)
-        if action is None:
-            print("Invalid choice. Please enter a number from 1 to 7.")
-            continue
+        show_menu()
+        choice = input("Enter your choice: ")
 
         try:
-            action()
+            if choice == "1":
+                add_task(tasks)
+            elif choice == "2":
+                view_tasks(tasks)
+            elif choice == "3":
+                search_tasks(tasks)
+            elif choice == "4":
+                update_task(tasks)
+            elif choice == "5":
+                delete_task(tasks)
+            elif choice == "6":
+                show_summary(tasks)
+            elif choice == "7":
+                print("Your tasks are saved. Goodbye!")
+                break
+            else:
+                print("Invalid choice. Please choose from 1 to 7.")
         except (ValueError, OSError) as error:
-            print(f"Operation could not be completed: {error}")
+            print("Something went wrong:", error)
 
 
 if __name__ == "__main__":
-    run_app()
+    main()
