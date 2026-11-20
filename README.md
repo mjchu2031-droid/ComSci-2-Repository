@@ -50,9 +50,3 @@ Type this in the terminal:
 ```bash
 python -m unittest discover -s tests -v
 ```
-
-## Our project idea
-
-Our teacher approved the StudyTrack idea. We will continue improving the program as we work on the next project milestones.
-
-**Note:** The sample tasks are only examples. Add your group's real member names and update the task schedule before submitting.
