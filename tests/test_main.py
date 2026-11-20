@@ -106,7 +106,7 @@ class SummaryTests(unittest.TestCase):
         summary = calculate_summary(tasks, today=date(2026, 11, 20))
         self.assertEqual(summary["total"], 3)
         self.assertEqual(summary["status_counts"]["Completed"], 1)
-        self.assertEqual(summary["completion_rate"], 100 / 3)
+        self.assertAlmostEqual(summary["completion_rate"], 100 / 3)
         self.assertEqual(summary["upcoming"], 1)
         self.assertEqual(summary["overdue"], 1)
 
