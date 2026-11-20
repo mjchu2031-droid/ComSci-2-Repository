@@ -14,16 +14,17 @@ PRIORITIES = ["Low", "Medium", "High"]
 STATUSES = ["Pending", "In Progress", "Completed"]
 
 
-def load_tasks():
+def load_tasks(file_path=DATA_FILE):
     """Read the tasks from the JSON file."""
-    DATA_FILE.parent.mkdir(exist_ok=True)
+    file_path = Path(file_path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if not DATA_FILE.exists():
-        save_tasks([])
+    if not file_path.exists():
+        save_tasks([], file_path)
         return []
 
     try:
-        with open(DATA_FILE, "r", encoding="utf-8") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             tasks = json.load(file)
     except json.JSONDecodeError:
         raise ValueError("The tasks.json file is not valid JSON.")
@@ -34,10 +35,12 @@ def load_tasks():
     return tasks
 
 
-def save_tasks(tasks):
+def save_tasks(tasks, file_path=DATA_FILE):
     """Save the task list to the JSON file."""
-    DATA_FILE.parent.mkdir(exist_ok=True)
-    with open(DATA_FILE, "w", encoding="utf-8") as file:
+    file_path = Path(file_path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(file_path, "w", encoding="utf-8") as file:
         json.dump(tasks, file, indent=4)
 
 
