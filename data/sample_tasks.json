@@ -1,0 +1,32 @@
+[
+    {
+        "task_id": 1,
+        "title": "Science worksheet",
+        "subject": "Science",
+        "date_assigned": "2026-11-20",
+        "due_date": "2026-11-24",
+        "priority": "High",
+        "status": "In Progress",
+        "estimated_minutes": 45
+    },
+    {
+        "task_id": 2,
+        "title": "Mathematics practice exercises",
+        "subject": "Mathematics",
+        "date_assigned": "2026-11-20",
+        "due_date": "2026-11-25",
+        "priority": "Medium",
+        "status": "Pending",
+        "estimated_minutes": 35
+    },
+    {
+        "task_id": 3,
+        "title": "English essay draft",
+        "subject": "English",
+        "date_assigned": "2026-11-19",
+        "due_date": "2026-11-27",
+        "priority": "High",
+        "status": "Completed",
+        "estimated_minutes": 60
+    }
+]
