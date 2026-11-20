@@ -1,0 +1,62 @@
+[
+  {
+    "task_id": 1,
+    "title": "Science worksheet",
+    "subject": "Science",
+    "date_assigned": "2026-11-20",
+    "due_date": "2026-11-24",
+    "priority": "High",
+    "status": "In Progress",
+    "estimated_minutes": 45
+  },
+  {
+    "task_id": 2,
+    "title": "Mathematics practice exercises",
+    "subject": "Mathematics",
+    "date_assigned": "2026-11-20",
+    "due_date": "2026-11-25",
+    "priority": "Medium",
+    "status": "Pending",
+    "estimated_minutes": 35
+  },
+  {
+    "task_id": 3,
+    "title": "English essay draft",
+    "subject": "English",
+    "date_assigned": "2026-11-19",
+    "due_date": "2026-11-27",
+    "priority": "High",
+    "status": "In Progress",
+    "estimated_minutes": 60
+  },
+  {
+    "task_id": 4,
+    "title": "Social Studies reading notes",
+    "subject": "Social Studies",
+    "date_assigned": "2026-11-18",
+    "due_date": "2026-11-21",
+    "priority": "Low",
+    "status": "Completed",
+    "estimated_minutes": 25
+  },
+  {
+    "task_id": 5,
+    "title": "Computer Science project planning",
+    "subject": "Computer Science",
+    "date_assigned": "2026-11-20",
+    "due_date": "2026-11-28",
+    "priority": "High",
+    "status": "Pending",
+    "estimated_minutes": 50
+  },
+  {
+    "task_id": 6,
+    "title": "Filipino vocabulary review",
+    "subject": "Filipino",
+    "date_assigned": "2026-11-17",
+    "due_date": "2026-11-22",
+    "priority": "Medium",
+    "status": "Completed",
+    "estimated_minutes": 20
+  }
+]
