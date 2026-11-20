@@ -3,7 +3,7 @@
 **Computer Science 2 — Project Milestone 1 (Draft)**  
 **Prepared by:** Markellus Jhames D. Chu  
 **Section:** Grade 8 – Anthurium  
-**Project status:** Initial proposal; subject to teacher approval
+**Project status:** Project idea approved by the teacher (as reported); proposal draft for group review
 
 ## Project overview
 
